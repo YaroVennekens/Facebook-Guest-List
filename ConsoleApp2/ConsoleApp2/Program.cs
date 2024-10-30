@@ -11,11 +11,13 @@ class Program
                bestandsNaamExtra,
                facebookGastenlijstBestandspad,
                extraPersonenBestandspad,
-               outputBestandspad, eventNaam;
+               outputBestandspad,
+               eventNaam;
 
         Console.WriteLine("Maak automatisch een gastenlijst op basis van uw geëxporteerde Facebook-gastenlijst. Deze lijst");
         Console.WriteLine("wordt alfabetisch gesorteerd en dubbele namen worden verwijderd. U kunt ook extra personen");
-        Console.WriteLine("aan de gastenlijst toevoegen door een bestand met extra personen aan te maken.\n\nZorg er voor dat uw bestanden op uw desktop staat\n");
+        Console.WriteLine("aan de gastenlijst toevoegen door een bestand met extra personen aan te maken.\n\nZorg er voor dat uw bestanden op uw desktop staan\n");
+        
         eventNaam = ReadLine("Geef de naam van uw event in: ");
         bestandsNaamFacebook = ReadFileName("Geef de naam van het Facebook gastenlijst export bestand: ", ".csv");
         bestandsNaamExtra = ReadFileName("Geef de naam van het extra personen bestand: ", ".txt");
@@ -127,7 +129,7 @@ class Program
             else
             {
              
-                Console.WriteLine($"Het bestand '{bestandsnaam}' bestaat niet. Beschikbare bestanden op het bureaublad:");
+                Console.WriteLine($"Het bestand '{bestandsnaam}' bestaat niet.\n Beschikbare bestanden op het bureaublad:\nt");
                 ShowFiles(Environment.GetFolderPath(Environment.SpecialFolder.Desktop));
             }
         }
