@@ -11,14 +11,14 @@ class Program
                bestandsNaamExtra,
                facebookGastenlijstBestandspad,
                extraPersonenBestandspad,
-               outputBestandspad;
+               outputBestandspad, eventNaam;
 
         Console.WriteLine("Maak automatisch een gastenlijst op basis van uw geëxporteerde Facebook-gastenlijst. Deze lijst");
         Console.WriteLine("wordt alfabetisch gesorteerd en dubbele namen worden verwijderd. U kunt ook extra personen");
-        Console.WriteLine("aan de gastenlijst toevoegen door een bestand met extra personen aan te maken.\n");
-
-        bestandsNaamFacebook = ReadFileName("Geef de naam van het Facebook gastenlijst export bestand:", ".csv");
-        bestandsNaamExtra = ReadFileName("Geef de naam van het extra personen bestand:", ".txt");
+        Console.WriteLine("aan de gastenlijst toevoegen door een bestand met extra personen aan te maken.\n\nZorg er voor dat uw bestanden op uw desktop staat\n");
+        eventNaam = ReadLine("Geef de naam van uw event in: ");
+        bestandsNaamFacebook = ReadFileName("Geef de naam van het Facebook gastenlijst export bestand: ", ".csv");
+        bestandsNaamExtra = ReadFileName("Geef de naam van het extra personen bestand: ", ".txt");
 
         facebookGastenlijstBestandspad = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), $"{bestandsNaamFacebook}");
         extraPersonenBestandspad = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), $"{bestandsNaamExtra}");
@@ -95,8 +95,8 @@ class Program
                 Console.WriteLine(persoon);
             }
 
-            Console.WriteLine($"Gesorteerde unieke namen zijn opgeslagen in: {outputBestandspad}. " +
-                              $"Er gaan momenteel {outputNamen.Count(n => !n.Contains(" ----"))} mensen naar uw vat.");
+            Console.WriteLine($"\nGesorteerde unieke namen zijn opgeslagen in: {outputBestandspad}. " +
+                              $"Er gaan momenteel {outputNamen.Count(n => !n.Contains(" ----"))} mensen naar uw evenement {eventNaam}.");
         }
         catch (Exception e)
         {
@@ -131,6 +131,18 @@ class Program
                 ShowFiles(Environment.GetFolderPath(Environment.SpecialFolder.Desktop));
             }
         }
+    }
+
+    static string ReadLine(String message)
+    {
+        string naam;
+        do
+        {
+            Console.Write(message);
+            naam = Console.ReadLine();
+        }while(string.IsNullOrWhiteSpace(naam));
+
+        return naam;
     }
 
     static void ShowFiles(string directoryPath)
