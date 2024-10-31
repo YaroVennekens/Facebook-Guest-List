@@ -1,21 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
+﻿
 using OfficeOpenXml;
 
 class Program
 {
     static void Main()
-    {
-         ExcelPackage.LicenseContext = LicenseContext.NonCommercial; 
-
+    { 
+        
     string fileFacebook,
            fileExtraPersons,
            facebookGuestlistFilePath,
            extraPersonFilePath,
            outputFilePath,
            eventName;
+    
+    ExcelPackage.LicenseContext = LicenseContext.NonCommercial; 
+    HashSet<string> uniqueNames = new HashSet<string>();
     
     Console.WriteLine("Maak automatisch een gastenlijst op basis van uw geëxporteerde Facebook-gastenlijst. Deze lijst");
     Console.WriteLine("wordt alfabetisch gesorteerd en dubbele names worden verwijderd. U kunt ook extra personen");
@@ -29,9 +28,8 @@ class Program
     facebookGuestlistFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), $"{fileFacebook}");
     extraPersonFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), $"{fileExtraPersons}");
     outputFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "gastenlijst_export.txt");
-
-    HashSet<string> uniqueNames = new HashSet<string>();
-
+    
+    
     try
     {
       
@@ -162,25 +160,25 @@ class Program
 
     static string ReadFileName(string message, string extension)
     {
-        string bestandsname;
+        string fileName;
         while (true)
         {
-            Console.Write(message);
-            bestandsname = Console.ReadLine();
+            
+            fileName = ReadLine(message);
 
-            if (!bestandsname.EndsWith(extension, StringComparison.OrdinalIgnoreCase))
+            if (!fileName.EndsWith(extension, StringComparison.OrdinalIgnoreCase))
             {
-                bestandsname += extension;
+                fileName += extension;
             }
 
-            string bestandsPad = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), bestandsname);
-            if (File.Exists(bestandsPad))
+            string filePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), fileName);
+            if (File.Exists(filePath))
             {
-                return bestandsname; 
+                return fileName; 
             }
             else
             {
-                Console.WriteLine($"Het bestand '{bestandsname}' bestaat niet.\n Beschikbare bestanden op het bureaublad:");
+                Console.WriteLine($"Het bestand '{fileName}' bestaat niet.\n Beschikbare bestanden op het bureaublad:");
                 ShowFiles(Environment.GetFolderPath(Environment.SpecialFolder.Desktop));
             }
         }
