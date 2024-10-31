@@ -8,7 +8,7 @@ class Program
 {
     static void Main()
     {
-         ExcelPackage.LicenseContext = LicenseContext.NonCommercial; // Set based on your usage
+         ExcelPackage.LicenseContext = LicenseContext.NonCommercial; 
 
     string bestandsNaamFacebook,
            bestandsNaamExtra,
@@ -16,7 +16,7 @@ class Program
            extraPersonenBestandspad,
            outputBestandspad,
            eventNaam;
-
+    
     Console.WriteLine("Maak automatisch een gastenlijst op basis van uw geëxporteerde Facebook-gastenlijst. Deze lijst");
     Console.WriteLine("wordt alfabetisch gesorteerd en dubbele namen worden verwijderd. U kunt ook extra personen");
     Console.WriteLine("aan de gastenlijst toevoegen door een bestand met extra personen aan te maken.\nZorg er voor dat uw bestanden op uw desktop staan\n");
@@ -25,7 +25,7 @@ class Program
     eventNaam = ReadLine("Geef de naam van uw event in: ");
     bestandsNaamFacebook = ReadFileName("Geef de naam van het Facebook gastenlijst export bestand: ", ".csv");
     bestandsNaamExtra = ReadFileName("Geef de naam van het extra personen bestand: ", ".txt");
-
+    
     facebookGastenlijstBestandspad = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), $"{bestandsNaamFacebook}");
     extraPersonenBestandspad = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), $"{bestandsNaamExtra}");
     outputBestandspad = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "gastenlijst_export.txt");
@@ -34,7 +34,7 @@ class Program
 
     try
     {
-        // Check if input files exist
+      
         if (!File.Exists(facebookGastenlijstBestandspad))
         {
             Console.WriteLine($"Het bestand '{facebookGastenlijstBestandspad}' bestaat niet.");
@@ -47,7 +47,7 @@ class Program
             return; 
         }
 
-        // Read names from the Facebook guest list
+       
         string[] namen = File.ReadAllLines(facebookGastenlijstBestandspad);
         foreach (string naam in namen)
         {
@@ -62,7 +62,7 @@ class Program
             }
         }
 
-        // Read extra names
+     
         string[] extraNamen = File.ReadAllLines(extraPersonenBestandspad);
         foreach (string naam in extraNamen)
         {
@@ -71,12 +71,10 @@ class Program
                 uniekeNamen.Add(naam.Trim());
             }
         }
-
-        // Sort names and prepare for output
+       
         List<string> gesorteerdeNamen = uniekeNamen.ToList();
         gesorteerdeNamen.Sort();
-
-        // Create output text file
+       
         List<string> outputNamen = new List<string>();
         char huidigeLetter = '\0';
 
@@ -97,15 +95,17 @@ class Program
         }
 
         File.WriteAllLines(outputBestandspad, outputNamen);
+        int aantal = 1;
+        
         foreach (string persoon in outputNamen)
         {
+            aantal++;
             Console.WriteLine(persoon);
         }
 
         Console.WriteLine($"\nGesorteerde unieke namen zijn opgeslagen in: {outputBestandspad}. " +
-                          $"Er gaan momenteel {outputNamen.Count(n => !n.Contains(" ----"))} mensen naar uw evenement {eventNaam}.");
+                          $"Er gaan momenteel {aantal} mensen naar uw evenement {eventNaam}.");
 
-        // Create Excel file with columns for each first letter
         CreateExcelWithNameColumns(gesorteerdeNamen, eventNaam);
     }
     catch (Exception e)
@@ -113,14 +113,12 @@ class Program
         Console.WriteLine($"Er is een fout opgetreden: {e.Message}");
     }
     }
-
     static void CreateExcelWithNameColumns(List<string> gesorteerdeNamen, string eventNaam)
     {
         using (ExcelPackage package = new ExcelPackage())
         {
             var worksheet = package.Workbook.Worksheets.Add("Gastenlijst");
 
-            // Create a dictionary to hold names by their first letters
             Dictionary<char, List<string>> namesByFirstLetter = new Dictionary<char, List<string>>();
 
             foreach (var name in gesorteerdeNamen)
@@ -133,19 +131,28 @@ class Program
                 namesByFirstLetter[firstLetter].Add(name);
             }
 
-            // Write names to columns based on their first letters
-            int column = 1; // Start from the first column
+            int column = 1; 
             foreach (var kvp in namesByFirstLetter)
             {
-                worksheet.Cells[1, column].Value = kvp.Key; // Set header as the letter
+                worksheet.Cells[1, column].Value = kvp.Key; 
                 for (int i = 0; i < kvp.Value.Count; i++)
                 {
-                    worksheet.Cells[i + 2, column].Value = kvp.Value[i]; // Start writing names from the second row
+                    worksheet.Cells[i + 2, column].Value = kvp.Value[i]; 
                 }
+
+             
+                worksheet.Column(column).Width = 40;
+
+            
+                for (int i = 1; i <= kvp.Value.Count + 1; i++) 
+                {
+                    worksheet.Cells[i, column].Style.Font.Size = 18; 
+                    worksheet.Row(i).Height = 20;
+                }
+
                 column++;
             }
 
-            // Save the Excel file
             string excelFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), $"{eventNaam}_gastenlijst.xlsx");
             FileInfo excelFile = new FileInfo(excelFilePath);
             package.SaveAs(excelFile);
@@ -207,4 +214,5 @@ class Program
             Console.WriteLine($"Fout bij het ophalen van bestanden: {e.Message}");
         }
     }
+    
 }
