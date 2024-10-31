@@ -10,110 +10,109 @@ class Program
     {
          ExcelPackage.LicenseContext = LicenseContext.NonCommercial; 
 
-    string bestandsNaamFacebook,
-           bestandsNaamExtra,
-           facebookGastenlijstBestandspad,
-           extraPersonenBestandspad,
-           outputBestandspad,
-           eventNaam;
+    string fileFacebook,
+           fileExtraPersons,
+           facebookGuestlistFilePath,
+           extraPersonFilePath,
+           outputFilePath,
+           eventName;
     
     Console.WriteLine("Maak automatisch een gastenlijst op basis van uw geëxporteerde Facebook-gastenlijst. Deze lijst");
-    Console.WriteLine("wordt alfabetisch gesorteerd en dubbele namen worden verwijderd. U kunt ook extra personen");
+    Console.WriteLine("wordt alfabetisch gesorteerd en dubbele names worden verwijderd. U kunt ook extra personen");
     Console.WriteLine("aan de gastenlijst toevoegen door een bestand met extra personen aan te maken.\nZorg er voor dat uw bestanden op uw desktop staan\n");
     Console.WriteLine("Aan de gastenlijst worden alleen de personen toegevoegd die op MISSCHIEN of GAAT staan!\n");
     
-    eventNaam = ReadLine("Geef de naam van uw event in: ");
-    bestandsNaamFacebook = ReadFileName("Geef de naam van het Facebook gastenlijst export bestand: ", ".csv");
-    bestandsNaamExtra = ReadFileName("Geef de naam van het extra personen bestand: ", ".txt");
+    eventName = ReadLine("Geef de name van uw event in: ");
+    fileFacebook = ReadFileName("Geef de name van het Facebook gastenlijst export bestand (.csv): ", ".csv");
+    fileExtraPersons = ReadFileName("Geef de name van het extra personen bestand (.txt): ", ".txt");
     
-    facebookGastenlijstBestandspad = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), $"{bestandsNaamFacebook}");
-    extraPersonenBestandspad = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), $"{bestandsNaamExtra}");
-    outputBestandspad = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "gastenlijst_export.txt");
+    facebookGuestlistFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), $"{fileFacebook}");
+    extraPersonFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), $"{fileExtraPersons}");
+    outputFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "gastenlijst_export.txt");
 
-    HashSet<string> uniekeNamen = new HashSet<string>();
+    HashSet<string> uniqueNames = new HashSet<string>();
 
     try
     {
       
-        if (!File.Exists(facebookGastenlijstBestandspad))
+        if (!File.Exists(facebookGuestlistFilePath))
         {
-            Console.WriteLine($"Het bestand '{facebookGastenlijstBestandspad}' bestaat niet.");
+            Console.WriteLine($"Het bestand '{facebookGuestlistFilePath}' bestaat niet.");
             return;
         }
 
-        if (!File.Exists(extraPersonenBestandspad))
+        if (!File.Exists(extraPersonFilePath))
         {
-            Console.WriteLine($"Het bestand '{extraPersonenBestandspad}' bestaat niet.");
+            Console.WriteLine($"Het bestand '{extraPersonFilePath}' bestaat niet.");
             return; 
         }
 
        
-        string[] namen = File.ReadAllLines(facebookGastenlijstBestandspad);
-        foreach (string naam in namen)
+        string[] names = File.ReadAllLines(facebookGuestlistFilePath);
+        foreach (string name in names)
         {
-            string naamLowerCase = naam.ToLower();
-            if (!naamLowerCase.Contains("uitgenodigd"))
+            string nameLowerCase = name.ToLower();
+            if (!nameLowerCase.Contains("uitgenodigd"))
             {
-                uniekeNamen.Add(naam.Trim()
+                uniqueNames.Add(name.Trim()
                     .Replace("Aanwezig", "")
                     .Replace(",", "")
                     .Replace("\"", "")
                     .Replace("Misschien", "").Trim());
             }
         }
-
-     
-        string[] extraNamen = File.ReadAllLines(extraPersonenBestandspad);
-        foreach (string naam in extraNamen)
+        
+        string[] extranames = File.ReadAllLines(extraPersonFilePath);
+        foreach (string name in extranames)
         {
-            if (!string.IsNullOrWhiteSpace(naam))
+            if (!string.IsNullOrWhiteSpace(name))
             {
-                uniekeNamen.Add(naam.Trim());
+                uniqueNames.Add(name.Trim());
             }
         }
        
-        List<string> gesorteerdeNamen = uniekeNamen.ToList();
-        gesorteerdeNamen.Sort();
+        List<string> sortedNames = uniqueNames.ToList();
+        sortedNames.Sort();
        
-        List<string> outputNamen = new List<string>();
-        char huidigeLetter = '\0';
+        List<string> outputnames = new List<string>();
+        char currentLetter = '\0';
 
-        foreach (string orderedName in gesorteerdeNamen)
+        foreach (string sortedName in sortedNames)
         {
-            if (string.IsNullOrWhiteSpace(orderedName))
+            if (string.IsNullOrWhiteSpace(sortedName))
                 continue;
 
-            char eersteLetter = char.ToUpper(orderedName[0]);
+            char firstLetter = char.ToUpper(sortedName[0]);
 
-            if (eersteLetter != huidigeLetter)
+            if (firstLetter != currentLetter)
             {
-                huidigeLetter = eersteLetter;
-                outputNamen.Add($"\n{eersteLetter} ----\n");
+                currentLetter = firstLetter;
+                outputnames.Add($"\n{firstLetter} ----\n");
             }
 
-            outputNamen.Add(orderedName);
+            outputnames.Add(sortedName);
         }
 
-        File.WriteAllLines(outputBestandspad, outputNamen);
-        int aantal = 1;
+        File.WriteAllLines(outputFilePath, outputnames);
+        int amount = 1;
         
-        foreach (string persoon in outputNamen)
+        foreach (string persoon in outputnames)
         {
-            aantal++;
+            amount++;
             Console.WriteLine(persoon);
         }
 
-        Console.WriteLine($"\nGesorteerde unieke namen zijn opgeslagen in: {outputBestandspad}. " +
-                          $"Er gaan momenteel {aantal} mensen naar uw evenement {eventNaam}.");
+        Console.WriteLine($"\nGesorteerde unieke names zijn opgeslagen in: {outputFilePath}. " +
+                          $"Er gaan momenteel {amount} mensen naar uw evenement {eventName}.");
 
-        CreateExcelWithNameColumns(gesorteerdeNamen, eventNaam);
+        CreateExcelWithNameColumns(sortedNames, eventName);
     }
     catch (Exception e)
     {
         Console.WriteLine($"Er is een fout opgetreden: {e.Message}");
     }
     }
-    static void CreateExcelWithNameColumns(List<string> gesorteerdeNamen, string eventNaam)
+    static void CreateExcelWithNameColumns(List<string> sortedNames, string eventName)
     {
         using (ExcelPackage package = new ExcelPackage())
         {
@@ -121,7 +120,7 @@ class Program
 
             Dictionary<char, List<string>> namesByFirstLetter = new Dictionary<char, List<string>>();
 
-            foreach (var name in gesorteerdeNamen)
+            foreach (var name in sortedNames)
             {
                 char firstLetter = char.ToUpper(name[0]);
                 if (!namesByFirstLetter.ContainsKey(firstLetter))
@@ -153,7 +152,7 @@ class Program
                 column++;
             }
 
-            string excelFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), $"{eventNaam}_gastenlijst.xlsx");
+            string excelFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), $"{eventName}_gastenlijst.xlsx");
             FileInfo excelFile = new FileInfo(excelFilePath);
             package.SaveAs(excelFile);
 
@@ -163,25 +162,25 @@ class Program
 
     static string ReadFileName(string message, string extension)
     {
-        string bestandsnaam;
+        string bestandsname;
         while (true)
         {
             Console.Write(message);
-            bestandsnaam = Console.ReadLine();
+            bestandsname = Console.ReadLine();
 
-            if (!bestandsnaam.EndsWith(extension, StringComparison.OrdinalIgnoreCase))
+            if (!bestandsname.EndsWith(extension, StringComparison.OrdinalIgnoreCase))
             {
-                bestandsnaam += extension;
+                bestandsname += extension;
             }
 
-            string bestandsPad = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), bestandsnaam);
+            string bestandsPad = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), bestandsname);
             if (File.Exists(bestandsPad))
             {
-                return bestandsnaam; 
+                return bestandsname; 
             }
             else
             {
-                Console.WriteLine($"Het bestand '{bestandsnaam}' bestaat niet.\n Beschikbare bestanden op het bureaublad:");
+                Console.WriteLine($"Het bestand '{bestandsname}' bestaat niet.\n Beschikbare bestanden op het bureaublad:");
                 ShowFiles(Environment.GetFolderPath(Environment.SpecialFolder.Desktop));
             }
         }
@@ -189,14 +188,14 @@ class Program
 
     static string ReadLine(string message)
     {
-        string naam;
+        string name;
         do
         {
             Console.Write(message);
-            naam = Console.ReadLine();
-        } while (string.IsNullOrWhiteSpace(naam));
+            name = Console.ReadLine();
+        } while (string.IsNullOrWhiteSpace(name));
 
-        return naam;
+        return name;
     }
 
     static void ShowFiles(string directoryPath)
